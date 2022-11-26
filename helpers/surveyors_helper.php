@@ -10,6 +10,22 @@ function get_surveyor_name_by_id($surveyor_id){
 }
 
 
+function is_surveyor_staff($staff_id){
+    $CI = &get_instance();
+    $CI->db->select(['staffid']);
+    $CI->db->where('client_type', 'surveyor');
+    $CI->db->where('is_not_staff', 0);
+    $CI->db->where('staffid', $staff_id);
+    return (bool)$CI->db->get(db_prefix() . 'staff')->result();
+}
+
+function get_surveyor_id_by_staff_id($staff_id){
+    $CI = &get_instance();
+        $CI->db->select(['client_id']);
+        $CI->db->where('staffid', $staff_id);
+    return $CI->db->get(db_prefix() . 'staff')->row('client_id');
+}
+
 function surveyors_notification()
 {
     $CI = &get_instance();
