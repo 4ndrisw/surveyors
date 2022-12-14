@@ -70,9 +70,27 @@ class Staff extends AdminController
     /* Add new staff member or edit existing */
     public function member($id)
     {
-        if (!has_permission('pengguna', '', 'view')) {
+        $staff_id = get_staff_user_id();
+        $current_user = get_client_type($staff_id);
+        $company_id = $current_user->client_id;
+
+        $member = get_client_type($id);
+        if(!is_admin()){    
+            if( $company_id != $member->client_id
+                || ($company_id != $member->client_id && !has_permission('pengguna', '', 'edit'))
+              ){
+                access_denied('staff');
+            }   
+        }
+
+        /*
+        if (!has_permission('pengguna', '', 'edit')
+            || ($company_id != $member->client_id)
+            ) {
             access_denied('staff');
         }
+        */
+
         hooks()->do_action('surveyor_member_add_view_profile', $id);
 
         if ($this->input->post()) {
@@ -88,9 +106,14 @@ class Staff extends AdminController
 
             $data['password'] = $this->input->post('password', false);
 
-            if (!has_permission('pengguna', '', 'edit')) {
-                access_denied('staff');
+            if(!is_admin()){    
+                if( $company_id != $member->client_id
+                    || ($company_id != $member->client_id && !has_permission('pengguna', '', 'edit'))
+                  ){
+                    access_denied('staff');
+                }   
             }
+            
             handle_staff_profile_image_upload($id);
             $response = $this->staff_model->update($data, $id);
             if (is_array($response)) {

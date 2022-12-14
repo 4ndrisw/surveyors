@@ -219,7 +219,7 @@ class Surveyors extends AdminController
 
     public function delete_attachment($id)
     {
-        $file = $this->misc_model->get_file($id);
+        $file = $this->surveyors_model->get_file($id);
         if ($file->staffid == get_staff_user_id() || is_admin()) {
             echo $this->surveyors_model->delete_attachment($id);
         } else {
@@ -252,7 +252,7 @@ class Surveyors extends AdminController
         $data['title'] = 'Form add / Edit Staff';
         $data['activity']          = $this->surveyors_model->get_surveyor_activity($id);
         $data['surveyor']          = $surveyor;
-        $data['member']           = $this->staff_model->get('', ['active' => 1, 'client_id'=>$id]);
+        $data['members']           = $this->staff_model->get('', ['active' => 1, 'client_id'=>$id]);
         $data['surveyor_states'] = $this->surveyors_model->get_states();
         $data['totalNotes']        = total_rows(db_prefix() . 'notes', ['rel_id' => $id, 'rel_type' => 'surveyor']);
 
@@ -304,7 +304,7 @@ class Surveyors extends AdminController
     public function add_note($rel_id)
     {
         if ($this->input->post() && user_can_view_surveyor($rel_id)) {
-            $this->misc_model->add_note($this->input->post(), 'surveyor', $rel_id);
+            $this->surveyors_model->add_note($this->input->post(), 'surveyor', $rel_id);
             echo $rel_id;
         }
     }
@@ -312,7 +312,7 @@ class Surveyors extends AdminController
     public function get_notes($id)
     {
         if (user_can_view_surveyor($id)) {
-            $data['notes'] = $this->misc_model->get_notes($id, 'surveyor');
+            $data['notes'] = $this->surveyors_model->get_notes($id, 'surveyor');
             $this->load->view('admin/includes/sales_notes_template', $data);
         }
     }
@@ -641,5 +641,110 @@ class Surveyors extends AdminController
         $this->app->get_table_data(module_views_path('surveyors', 'admin/tables/staff'), array('client_id'=>$client_id));
     }
 
+    /* Since version 1.0.2 add client permit */
+    public function add_permit($rel_id, $rel_type)
+    {
+        $message    = '';
+        $alert_type = 'warning';
+        if ($this->input->post()) {
+            $success = $this->surveyors_model->add_permit($this->input->post(), $rel_id);
+            if ($success) {
+                $alert_type = 'success';
+                $message    = _l('permit_added_successfully');
+            }else{
+                $alert_type = 'warning';
+                $message    = _l('permit_failed_to_add');
+            }
+        }
+        echo json_encode([
+            'alert_type' => $alert_type,
+            'message'    => $message,
+        ]);
+    }
+
+    public function get_permits($id, $rel_type)
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->app->get_table_data(module_views_path('surveyors', 'admin/tables/permits'), [
+                'id'       => $id,
+                'rel_type' => $rel_type,
+            ]);
+        }
+    }
+
+    public function my_permits()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->app->get_table_data(module_views_path('surveyors', 'admin/tables/staff_permits'));
+        }
+    }
+
+    public function permits()
+    {
+        $this->load->model('staff_model');
+        $data['members']   = $this->staff_model->get('', ['active' => 1]);
+        $data['title']     = _l('permits');
+        $data['bodyclass'] = 'all-permits';
+        $this->load->view('admin/utilities/all_permits', $data);
+    }
+
+    public function permits_table()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->app->get_table_data(module_views_path('surveyors', 'admin/tables/all_permits'));
+        }
+    }
+
+    /* Since version 1.0.2 delete client permit */
+    public function delete_permit($rel_id, $id, $rel_type)
+    {
+        if (!$id && !$rel_id) {
+            die('No permit found');
+        }
+        $success    = $this->surveyors_model->delete_permit($id);
+        $alert_type = 'warning';
+        $message    = _l('permit_failed_to_delete');
+        if ($success) {
+            $alert_type = 'success';
+            $message    = _l('permit_deleted');
+        }
+        echo json_encode([
+            'alert_type' => $alert_type,
+            'message'    => $message,
+        ]);
+    }
+
+    public function get_permit($id)
+    {
+        $permit = $this->surveyors_model->get_permits($id);
+        if ($permit) {
+            if ($permit->creator == get_staff_user_id() || is_admin()) {
+                $permit->date_issued        = _d($permit->date_issued);
+                $permit->date_expired        = _d($permit->date_expired);
+                $permit->description = clear_textarea_breaks($permit->description);
+                echo json_encode($permit);
+            }
+        }
+    }
+
+    public function edit_permit($id)
+    {
+        $permit = $this->surveyors_model->get_permits($id);
+        if ($permit && ($permit->creator == get_staff_user_id() || is_admin()) && $permit->isnotified == 0) {
+            $success = $this->surveyors_model->edit_permit($this->input->post(), $id);
+            echo json_encode([
+                    'alert_type' => 'success',
+                    'message'    => ($success ? _l('updated_successfully', _l('permit')) : ''),
+                ]);
+        }
+    }
+
+    /* Change client status / active / inactive */
+    public function change_permit_status($id, $status)
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->surveyors_model->change_permit_status($id, $status);
+        }
+    }
 
 }

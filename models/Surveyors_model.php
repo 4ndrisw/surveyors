@@ -1058,4 +1058,141 @@ class Surveyors_model extends Clients_Model
 
         return $kanBan->get();
     }
+
+
+    /**
+     * Add permit
+     * @since  Version 1.0.2
+     * @param mixed $data All $_POST data for the permit
+     * @param mixed $id   relid id
+     * @return boolean
+     */
+    public function add_permit($data, $id)
+    {
+        if (isset($data['notify_by_email'])) {
+            $data['notify_by_email'] = 1;
+        } //isset($data['notify_by_email'])
+        else {
+            $data['notify_by_email'] = 0;
+        }
+        //$data['date']        = to_sql_date($data['date'], true);
+        $data['description'] = nl2br($data['description']);
+        $data['creator']     = get_staff_user_id();
+        $this->db->insert(db_prefix() . 'permits', $data);
+        $insert_id = $this->db->insert_id();
+        if ($insert_id) {
+            log_activity('New permit Added [' . ucfirst($data['rel_type']) . 'ID: ' . $data['rel_id'] . ' Description: ' . $data['description'] . ']');
+            return true;
+        } //$insert_id
+        return false;
+    }
+
+    public function edit_permit($data, $id)
+    {
+        if (isset($data['notify_by_email'])) {
+            $data['notify_by_email'] = 1;
+        } else {
+            $data['notify_by_email'] = 0;
+        }
+
+        $data['date_issued']        = _d($data['date_issued'], true);
+        $data['date_expired']        = _d($data['date_expired'], true);
+        $data['description'] = nl2br($data['description']);
+
+        $this->db->where('id', $id);
+        $this->db->update(db_prefix() . 'permits', $data);
+
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    
+    /**
+     * Get all permits or 1 permit if id is passed
+     * @since Version 1.0.2
+     * @param  mixed $id permit id OPTIONAL
+     * @return array or object
+     */
+    public function get_permits($id = '')
+    {
+        $this->db->join(db_prefix() . 'staff', '' . db_prefix() . 'staff.staffid = ' . db_prefix() . 'permits.staff', 'left');
+        if (is_numeric($id)) {
+            $this->db->where(db_prefix() . 'permits.id', $id);
+
+            return $this->db->get(db_prefix() . 'permits')->row();
+        } //is_numeric($id)
+        $this->db->order_by('date', 'desc');
+
+        return $this->db->get(db_prefix() . 'permits')->result_array();
+    }
+
+    /**
+     * Remove client permit from database
+     * @since Version 1.0.2
+     * @param  mixed $id permit id
+     * @return boolean
+     */
+    public function delete_permit($id)
+    {
+        $permit = $this->get_permits($id);
+        if ($permit->creator == get_staff_user_id() || is_admin()) {
+            $this->db->where('id', $id);
+            $this->db->delete(db_prefix() . 'permits');
+            if ($this->db->affected_rows() > 0) {
+                log_activity('permit Deleted [' . ucfirst($permit->rel_type) . 'ID: ' . $permit->id . ' Description: ' . $permit->description . ']');
+
+                return true;
+            } //$this->db->affected_rows() > 0
+            return false;
+        } //$permit->creator == get_staff_user_id() || is_admin()
+        return false;
+    }
+
+    /**
+     * @param  integer ID
+     * @param  integer Status ID
+     * @return boolean
+     * Update permit status Active/Inactive
+     */
+    public function change_permit_status($id, $status)
+    {
+        $this->db->where('id', $id);
+        $this->db->update(db_prefix() . 'permits', [
+            'is_active' => $status,
+        ]);
+
+        if ($this->db->affected_rows() > 0) {
+            hooks()->do_action('permit_status_changed', [
+                'id'     => $id,
+                'status' => $status,
+            ]);
+
+            log_activity('Permit Status Changed [ID: ' . $id . ' Status(Active/Inactive): ' . $status . ']');
+
+            // Admin marked surveyor
+            $this->db->reset_query();
+            $this->db->where('id', $id);
+            $permit = $this->db->get(db_prefix() . 'permits')->row();
+            $status_text = 'In active';
+            if($status){
+                $status_text = 'Active';
+            }
+            $this->log_surveyor_activity($permit->rel_id, 'surveyor_permit_status_changed', false, serialize([
+                '<custom_data>'. 
+                _l('permit') . ' = '. $permit->permit_number .'<br />'. 
+                'Staff  = '. get_staff_full_name($permit->staff) .'<br />'. 
+                'Status = '. $status_text .'<br />'. 
+                _l('description') . ' = '. $permit->description . 
+                '</custom_data>',
+            ]));
+
+            return true;
+        }
+
+        return false;
+    }
+    
 }

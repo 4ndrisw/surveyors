@@ -5,6 +5,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 $has_permission_delete = has_permission('staff', '', 'delete');
 $has_pengguna_edit = has_permission('pengguna', '', 'edit');
 
+$staff_id = get_staff_user_id();
+$current_user = get_client_type($staff_id);
+$company_id = $current_user->client_id;
+
 $custom_fields = get_custom_fields('staff', [
     'show_on_table' => 1,
     ]);
@@ -31,6 +35,7 @@ $result = data_tables_init($aColumns, $sIndexColumn, $sTable, $join, $where, [
     'profile_image',
     'lastname',
     'staffid',
+    'client_id',
     ]);
 
 $output  = $result['output'];
@@ -64,7 +69,7 @@ foreach ($rResult as $aRow) {
             // For exporting
             $_data .= '<span class="hide">' . ($checked == 'checked' ? _l('is_active_export') : _l('is_not_active_export')) . '</span>';
         } elseif ($aColumns[$i] == 'firstname') {
-            if($has_pengguna_edit){
+            if($has_pengguna_edit || ($company_id == $aRow['client_id'])){
                 $_data = '<a href="' . admin_url('surveyors/staff/profile/' . $aRow['staffid']) . '">' . staff_profile_image($aRow['staffid'], [
                     'staff-profile-image-small',
                     ]) . '</a>';

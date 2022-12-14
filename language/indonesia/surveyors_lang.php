@@ -156,6 +156,24 @@ $lang['client_add_edit_contact']     						= 'Tambah / ubah contact';
 $lang['permission_view_by_instansi']     						= 'Dilihat oleh instansi';
 $lang['permission_view_by_unit']     						= 'Dilihat oleh unit';
 $lang['client_add_edit_contact']     						= 'Tambah / ubah contact';
+$lang['staff_add_edit_skp_number']     						= 'Nomor SKP';
+$lang['staff_add_edit_skp_datestart']     						= 'Tanggal Penerbitan SKP';
+$lang['staff_add_edit_skp_dateend']     						= 'Tanggal Kadaluarsa SKP';
+$lang['surveyor_permits']     						= 'SKP PJK3';
+$lang['surveyor_set_permit_title']     						= 'Set SKP PJK3';
+$lang['permit_is_notified_boolean_no']     						= 'Tidak diinformasikan';
+$lang['permit_is_notified_boolean_yes']     						= 'Diinformasikan';
+$lang['surveyors_permit_form']     						= 'SKP PJK3 Form';
+$lang['permit_description']     						= 'Description';
+$lang['permit_staff']     								= 'Tenaga Ahli';
+$lang['permit_is_notified']     						= 'Diinformasikan ?';
+$lang['surveyor_permit_number']     					= 'Nomor SKP PJK3';
+$lang['permit_date_issued']     						= 'Tanggal diterbitkan';
+$lang['permit_number']     						= 'Nomor SKP';
+$lang['permit_date_expired']     						= 'Kadaluarsa';
+$lang['is_active']     						= 'Active ?';
+$lang['permit_active_inactive_help']     						= 'Klick disini untuk mengubah status aktif / non aktif SKP';
+$lang['surveyor_permit_status_changed']     						= 'Status SKP Perusahaan dirubah';
 
 /*
 

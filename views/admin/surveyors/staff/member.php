@@ -130,6 +130,14 @@
                                     }
                                     echo render_select('kelompok_pegawai_id',$kelompok_pegawai,array('id',array('name')),'kelompok_pegawai_string',$selected);
                                 ?>
+                                <?php $value = (isset($member) ? $member->skp_number : ''); ?>
+                                <?php echo render_input('skp_number', 'staff_add_edit_skp_number', $value); ?>
+
+                                <?php $value = (isset($member) ? _d($member->skp_datestart) : _d(date('Y-m-d'))); ?>
+                                <?php echo render_date_input('skp_datestart','staff_add_edit_skp_datestart',$value); ?>
+
+                                <?php $value = (isset($member) ? _d($member->skp_dateend) : _d(date('Y-m-d'))); ?>
+                                <?php echo render_date_input('skp_dateend','staff_add_edit_skp_dateend',$value); ?>
 
                                 <?php if (!is_language_disabled()) { ?>
                                 <div class="form-group select-placeholder">
@@ -346,162 +354,7 @@
                         </div>
                     </div>
                 </div>
-                <h4 class="tw-mt-0 tw-font-semibold tw-text-lg tw-text-neutral-700">
-                    <?php echo _l('task_timesheets'); ?> & <?php echo _l('als_reports'); ?>
-                </h4>
-                <div class="panel_s">
-                    <div class="panel-body">
-                        <?php echo form_open($this->uri->uri_string(), ['method' => 'GET']); ?>
-                        <?php echo form_hidden('filter', 'true'); ?>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="select-placeholder">
-                                    <select name="range" id="range" class="selectpicker" data-width="100%">
-                                        <option value="this_month" <?php if (!$this->input->get('range') || $this->input->get('range') == 'this_month') {
-                         echo 'selected';
-                     } ?>><?php echo _l('staff_stats_this_month_total_logged_time'); ?></option>
-                                        <option value="last_month" <?php if ($this->input->get('range') == 'last_month') {
-                         echo 'selected';
-                     } ?>><?php echo _l('staff_stats_last_month_total_logged_time'); ?></option>
-                                        <option value="this_week" <?php if ($this->input->get('range') == 'this_week') {
-                         echo 'selected';
-                     } ?>><?php echo _l('staff_stats_this_week_total_logged_time'); ?></option>
-                                        <option value="last_week" <?php if ($this->input->get('range') == 'last_week') {
-                         echo 'selected';
-                     } ?>><?php echo _l('staff_stats_last_week_total_logged_time'); ?></option>
-                                        <option value="period" <?php if ($this->input->get('range') == 'period') {
-                         echo 'selected';
-                     } ?>><?php echo _l('period_datepicker'); ?></option>
-                                    </select>
-                                </div>
-                                <div class="row mtop15">
-                                    <div class="col-md-12 period <?php if ($this->input->get('range') != 'period') {
-                         echo 'hide';
-                     } ?>">
-                                        <?php echo render_date_input('period-from', '', $this->input->get('period-from')); ?>
-                                    </div>
-                                    <div class="col-md-12 period <?php if ($this->input->get('range') != 'period') {
-                         echo 'hide';
-                     } ?>">
-                                        <?php echo render_date_input('period-to', '', $this->input->get('period-to')); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2 text-right">
-                                <button type="submit"
-                                    class="btn btn-success apply-timesheets-filters"><?php echo _l('apply'); ?></button>
-                            </div>
-                        </div>
-                        <?php echo form_close(); ?>
-                        <hr class="hr-panel-separator" />
-                        <table class="table dt-table">
-                            <thead>
-                                <th><?php echo _l('task'); ?></th>
-                                <th><?php echo _l('timesheet_start_time'); ?></th>
-                                <th><?php echo _l('timesheet_end_time'); ?></th>
-                                <th><?php echo _l('task_relation'); ?></th>
-                                <th><?php echo _l('staff_hourly_rate'); ?> (<?php echo _l('als_staff'); ?>)</th>
-                                <th><?php echo _l('time_h'); ?></th>
-                                <th><?php echo _l('time_decimal'); ?></th>
-                                <th data-sortable="false"></th>
-                            </thead>
-                            <tbody>
-                                <?php
-                           $total_logged_time = [];
-                           foreach ($timesheets as $t) { ?>
-                                <tr>
-                                    <td><a href="#"
-                                            onclick="init_task_modal(<?php echo $t['task_id']; ?>); return false;"><?php echo $t['name']; ?></a>
-                                    </td>
-                                    <td data-order="<?php echo $t['start_time']; ?>">
-                                        <?php echo _dt($t['start_time'], true); ?></td>
-                                    <td data-order="<?php echo $t['end_time']; ?>">
-                                        <?php
-                                 // Allow admins or timer user to stop forgotten timers by staff member
-                                 if ($t['not_finished'] && (is_admin() || $t['staff_id'] === get_staff_user_id())) {
-                                     ?>
-                                        <a href="#" <?php
-                                          // Do not show the note popover when there is no associated task
-                                          // The user will be able to add note and select task in the popup window that will open
-                                          if ($t['task_id'] != 0) { ?> data-toggle="popover" data-placement="bottom"
-                                            data-html="true" data-trigger="manual"
-                                            data-title="<?php echo _l('note'); ?>"
-                                            data-content='<?php echo render_textarea('timesheet_note'); ?><button type="button"
-                                          onclick="timer_action(this, <?php echo $t['task_id']; ?>, <?php echo $t['id']; ?>, 1);" class="btn btn-primary btn-sm"><?php echo _l('save'); ?></button>'
-                                            onclick="return false;" <?php } else { ?>
-                                            onclick="timer_action(this, <?php echo $t['task_id']; ?>, <?php echo $t['id']; ?>, 1); return false;"
-                                            <?php } ?> class="text-danger">
-                                            <i class="fa-regular fa-clock"></i>
-                                            <?php echo _l('task_stop_timer'); ?>
-                                        </a>
-                                        <?php
-                                 } elseif ($t['not_finished']) {
-                                     echo '<b>' . _l('timer_not_stopped_yet') . '</b>';
-                                 } else {
-                                     echo _dt($t['end_time'], true);
-                                 }
-                              ?>
-                                    </td>
-                                    <td>
-                                        <?php
-                                 $rel_data   = get_relation_data($t['rel_type'], $t['rel_id']);
-                                 $rel_values = get_relation_values($rel_data, $t['rel_type']);
-                                 echo '<a href="' . $rel_values['link'] . '">' . $rel_values['name'] . '</a>';
-                                 ?>
-                                    </td>
-                                    <td><?php //echo app_format_money($t['hourly_rate'], $base_currency); ?></td>
-                                    <td>
-                                        <?php echo '<b>' . seconds_to_time_format($t['end_time'] - $t['start_time']) . '</b>'; ?>
-                                    </td>
-                                    <td data-order="<?php echo sec2qty($t['total']); ?>">
-                                        <?php
-                                 $total_logged_time[] = ['total' => $t['total'], 'hourly_rate' => $t['hourly_rate']];
-                                 echo '<b>' . sec2qty($t['total']) . '</b>';
-                                 ?>
-                                    </td>
-                                    <td>
-                                        <?php
-                                 if (!$t['billed']) {
-                                     if (has_permission('tasks', '', 'delete')
-                                       || (has_permission('programs', '', 'delete') && $t['rel_type'] == 'program')
-                                       || $t['staff_id'] == get_staff_user_id()) {
-                                         echo '<a href="' . admin_url('tasks/delete_timesheet/' . $t['id']) . '" class="pull-right text-danger mtop5"><i class="fa fa-remove"></i></a>';
-                                     }
-                                 }
-                              ?>
-                                    </td>
-                                </tr>
-                                <?php } ?>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td align="right"><?php echo '<b>' . _l('total_by_hourly_rate') . ':</b> ' . app_format_money(
-                                          collect($total_logged_time)->reduce(function ($carry, $item) {
-                                              return $carry + (sec2qty($item['total']) * (float) $item['hourly_rate']);
-                                          }, 0),
-                                          $base_currency
-                                      ); ?>
-                                    </td>
-                                    <td align="right">
-                                        <?php echo '<b>' . _l('total_logged_hours_by_staff') . ':</b> ' . seconds_to_time_format(
-                                  collect($total_logged_time)->pluck('total')->sum()
-                              ); ?>
-                                    </td>
-                                    <td align="right">
-                                        <?php echo '<b>' . _l('total_logged_hours_by_staff') . ':</b> ' . sec2qty(
-                                  collect($total_logged_time)->pluck('total')->sum()
-                              ); ?>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+
                 <h4 class="tw-mt-0 tw-font-semibold tw-text-lg tw-text-neutral-700">
                     <?php echo _l('programs'); ?>
                 </h4>
@@ -563,6 +416,10 @@
             firstname: 'required',
             lastname: 'required',
             username: 'required',
+            kelompok_pegawai_id: 'required',
+            skp_number: 'required',
+            skp_datestart: 'required',
+            skp_dateend: 'required',
             password: {
                 required: {
                     depends: function(element) {

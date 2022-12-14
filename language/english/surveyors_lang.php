@@ -160,7 +160,25 @@ $lang['surveyors_toggle_table_tooltip']           = 'Toggle Table';
 $lang['client_add_edit_contact']     						= 'Add edit contact';
 $lang['permission_view_by_instansi']     						= 'Permission view by instansi';
 $lang['permission_view_by_unit']     						= 'Permission view by unit';
-
+$lang['staff_add_edit_skp_number']     						= 'SKP Number';
+$lang['staff_add_edit_skp_datestart']     						= 'SKP Issued';
+$lang['staff_add_edit_skp_dateend']     						= 'SKP Expired';
+$lang['surveyor_permits']     						= 'Surveyor permits';
+$lang['surveyor_set_permit_title']     						= 'Set surveyor permit';
+$lang['permit_is_notified_boolean_no']     						= 'Not Notified';
+$lang['permit_is_notified_boolean_yes']     						= 'Notified';
+$lang['surveyors_permit_form']     						= 'Surveyor add permits';
+$lang['permit_description']     						= 'Description';
+$lang['permit_staff']     						= 'Staff';
+$lang['permit_is_notified']     						= 'Notified ?';
+$lang['surveyor_permit_number']     						= 'Surveyor Permit number';
+$lang['permit_date_issued']     						= 'Date issued';
+$lang['permit_number']     								= 'Permit number';
+$lang['permit_date_expired']     						= 'Expired';
+$lang['is_active']     									= 'Is active ?';
+$lang['permit_active_inactive_help']     				= 'Click here to activate / inactivate permit';
+$lang['surveyor_permit_status_changed']     			= 'Surveyor permit status changed';
+ 
 
 /*
 
