@@ -151,7 +151,7 @@ $lang['surveyor_activity_sent_to_client']                 = 'sent surveyor to cl
 
 $lang['surveyor_staffs']                        	= 'Saffs';
 $lang['surveyor_staff']                        	= 'Saff';
-$lang['surveyor_staff']                        	= 'Saff';
+$lang['surveyor_expert']                        	= 'Expert';
 $lang['permission_edit_own']                        	= 'Edit own';
 $lang['surveyor_activity_changed']                        	= 'Surveyor activity changed';
 $lang['company_siup']                        	= 'SIUP';
@@ -164,12 +164,14 @@ $lang['staff_add_edit_skp_number']     						= 'SKP Number';
 $lang['staff_add_edit_skp_datestart']     						= 'SKP Issued';
 $lang['staff_add_edit_skp_dateend']     						= 'SKP Expired';
 $lang['surveyor_permits']     						= 'Surveyor permits';
+$lang['surveyor_staff_permits']     						= 'Staff permits';
 $lang['surveyor_set_permit_title']     						= 'Set surveyor permit';
 $lang['permit_is_notified_boolean_no']     						= 'Not Notified';
 $lang['permit_is_notified_boolean_yes']     						= 'Notified';
 $lang['surveyors_permit_form']     						= 'Surveyor add permits';
 $lang['permit_description']     						= 'Description';
 $lang['permit_staff']     						= 'Staff';
+
 $lang['permit_is_notified']     						= 'Notified ?';
 $lang['surveyor_permit_number']     						= 'Surveyor Permit number';
 $lang['permit_date_issued']     						= 'Date issued';
@@ -178,7 +180,9 @@ $lang['permit_date_expired']     						= 'Expired';
 $lang['is_active']     									= 'Is active ?';
 $lang['permit_active_inactive_help']     				= 'Click here to activate / inactivate permit';
 $lang['surveyor_permit_status_changed']     			= 'Surveyor permit status changed';
- 
+$lang['permit_category']     									= 'Category';
+$lang['permit_set_to']     									= 'Staff';
+$lang['pjk3']     									= 'PJK3';
 
 /*
 

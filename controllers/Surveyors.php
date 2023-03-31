@@ -252,6 +252,7 @@ class Surveyors extends AdminController
         $data['title'] = 'Form add / Edit Staff';
         $data['activity']          = $this->surveyors_model->get_surveyor_activity($id);
         $data['surveyor']          = $surveyor;
+        $data['categories']          = get_kelompok_alat();
         $data['members']           = $this->staff_model->get('', ['active' => 1, 'client_id'=>$id]);
         $data['surveyor_states'] = $this->surveyors_model->get_states();
         $data['totalNotes']        = total_rows(db_prefix() . 'notes', ['rel_id' => $id, 'rel_type' => 'surveyor']);
@@ -672,6 +673,16 @@ class Surveyors extends AdminController
         }
     }
 
+    public function get_staff_permits($id, $rel_type)
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->app->get_table_data(module_views_path('surveyors', 'admin/tables/permits'), [
+                'id'       => $id,
+                'rel_type' => $rel_type,
+            ]);
+        }
+    }
+
     public function my_permits()
     {
         if ($this->input->is_ajax_request()) {
@@ -721,11 +732,14 @@ class Surveyors extends AdminController
             if ($permit->creator == get_staff_user_id() || is_admin()) {
                 $permit->date_issued        = _d($permit->date_issued);
                 $permit->date_expired        = _d($permit->date_expired);
+                //$permit->category        = $permit->category;
                 $permit->description = clear_textarea_breaks($permit->description);
                 echo json_encode($permit);
             }
         }
     }
+
+
 
     public function edit_permit($id)
     {

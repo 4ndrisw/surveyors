@@ -1097,6 +1097,8 @@ class Surveyors_model extends Clients_Model
 
         $data['date_issued']        = _d($data['date_issued'], true);
         $data['date_expired']        = _d($data['date_expired'], true);
+        $category = get_kelompok_alat($data['category_id']);
+        $data['category']           =  $category[0]['name'];
         $data['description'] = nl2br($data['description']);
 
         $this->db->where('id', $id);
@@ -1124,7 +1126,7 @@ class Surveyors_model extends Clients_Model
 
             return $this->db->get(db_prefix() . 'permits')->row();
         } //is_numeric($id)
-        $this->db->order_by('date', 'desc');
+        $this->db->order_by('date_expired', 'desc');
 
         return $this->db->get(db_prefix() . 'permits')->result_array();
     }

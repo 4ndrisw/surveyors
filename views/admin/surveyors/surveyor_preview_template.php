@@ -43,6 +43,24 @@
                      </a>
                   </li>
                   <li role="presentation">
+                     <a href="#tab_staff_permits" onclick="initDataTable('.table-staff_permits', admin_url + 'surveyors/get_staff_permits/' + <?php echo $surveyor->userid ;?> + '/' + 'surveyor_staff', undefined, undefined, undefined,[1,'asc']); return false;" aria-controls="tab_staff_permits" role="tab" data-toggle="tab">
+                     <?php echo _l('surveyor_staff_permits'); ?>
+                     <?php
+                        $total_staff_permits = total_rows(db_prefix().'permits',
+                          array(
+                           'isnotified'=>0,
+                           'staff'=>get_staff_user_id(),
+                           'rel_type'=>'surveyor_staff',
+                           'rel_id'=>$surveyor->userid
+                           )
+                          );
+                        if($total_staff_permits > 0){
+                          echo '<span class="badge">'.$total_staff_permits.'</span>';
+                        }
+                        ?>
+                     </a>
+                  </li>
+                  <li role="presentation">
                      <a href="#tab_permits" onclick="initDataTable('.table-permits', admin_url + 'surveyors/get_permits/' + <?php echo $surveyor->userid ;?> + '/' + 'surveyor', undefined, undefined, undefined,[1,'asc']); return false;" aria-controls="tab_permits" role="tab" data-toggle="tab">
                      <?php echo _l('surveyor_permits'); ?>
                      <?php
@@ -254,12 +272,22 @@
                ?>
                <?php //$this->load->view('admin/includes/modals/staff',array('id'=>$surveyor->userid,'name'=>'surveyor','member'=>$member,'staff_title'=>_l('surveyor_set_staff_title'))); ?>
             </div>
+
+
+            <div role="tabpanel" class="tab-pane" id="tab_staff_permits">
+               <a href="#" data-toggle="modal" class="btn btn-info" data-target=".permit-modal-surveyor_staff-<?php echo $surveyor->userid; ?>"><i class="fa-solid fa-file-contract"></i> <?php echo _l('surveyor_staff_set_permit_title'); ?></a>
+               <hr />
+               <?php render_datatable(array( _l( 'permit_number'), _l( 'permit_date_expired'), _l( 'permit_staff'), _l( 'permit_description'), _l('is_active')), 'staff_permits'); ?>
+               <?php $this->load->view('admin/includes/modals/permit',array('id'=>$surveyor->userid,'name'=>'surveyor_staff','members'=>isset($members) ? $members : [],'permit_title'=>_l('surveyor_staff_set_permit_title'))); ?>
+            </div>
             <div role="tabpanel" class="tab-pane" id="tab_permits">
-               <a href="#" data-toggle="modal" class="btn btn-info" data-target=".permit-modal-surveyor-<?php echo $surveyor->userid; ?>"><i class="fa fa-bell-o"></i> <?php echo _l('surveyor_set_permit_title'); ?></a>
+               <a href="#" data-toggle="modal" class="btn btn-info" data-target=".permit-modal-surveyor-<?php echo $surveyor->userid; ?>"><i class="fa-solid fa-file-contract"></i> <?php echo _l('surveyor_set_permit_title'); ?></a>
                <hr />
                <?php render_datatable(array( _l( 'permit_number'), _l( 'permit_date_expired'), _l( 'permit_staff'), _l( 'permit_description'), _l('is_active')), 'permits'); ?>
                <?php $this->load->view('admin/includes/modals/permit',array('id'=>$surveyor->userid,'name'=>'surveyor','members'=>isset($members) ? $members : [],'permit_title'=>_l('surveyor_set_permit_title'))); ?>
             </div>
+
+
             <div role="tabpanel" class="tab-pane" id="tab_reminders">
                <a href="#" data-toggle="modal" class="btn btn-info" data-target=".reminder-modal-surveyor-<?php echo $surveyor->userid; ?>"><i class="fa fa-bell-o"></i> <?php echo _l('surveyor_set_reminder_title'); ?></a>
                <hr />

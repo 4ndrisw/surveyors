@@ -130,14 +130,14 @@
                                     }
                                     echo render_select('kelompok_pegawai_id',$kelompok_pegawai,array('id',array('name')),'kelompok_pegawai_string',$selected);
                                 ?>
-                                <?php $value = (isset($member) ? $member->skp_number : ''); ?>
-                                <?php echo render_input('skp_number', 'staff_add_edit_skp_number', $value); ?>
+                                <?php //$value = (isset($member) ? $member->skp_number : ''); ?>
+                                <?php //echo render_input('skp_number', 'staff_add_edit_skp_number', $value); ?>
 
-                                <?php $value = (isset($member) ? _d($member->skp_datestart) : _d(date('Y-m-d'))); ?>
-                                <?php echo render_date_input('skp_datestart','staff_add_edit_skp_datestart',$value); ?>
+                                <?php //$value = (isset($member) ? _d($member->skp_datestart) : _d(date('Y-m-d'))); ?>
+                                <?php //echo render_date_input('skp_datestart','staff_add_edit_skp_datestart',$value); ?>
 
-                                <?php $value = (isset($member) ? _d($member->skp_dateend) : _d(date('Y-m-d'))); ?>
-                                <?php echo render_date_input('skp_dateend','staff_add_edit_skp_dateend',$value); ?>
+                                <?php //$value = (isset($member) ? _d($member->skp_dateend) : _d(date('Y-m-d'))); ?>
+                                <?php //echo render_date_input('skp_dateend','staff_add_edit_skp_dateend',$value); ?>
 
                                 <?php if (!is_language_disabled()) { ?>
                                 <div class="form-group select-placeholder">

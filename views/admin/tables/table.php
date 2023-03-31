@@ -2,6 +2,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 $is_surveyor=1;
+$staff_id = get_staff_user_id();
 
 $hasPermissionDelete = has_permission('customers', '', 'delete');
 
@@ -10,12 +11,10 @@ $this->ci->db->query("SET sql_mode = ''");
 
 $aColumns = [
     '1',
-    db_prefix().'clients.userid as userid',
     'company',
-    'firstname',
+    'company',
+    'lastname',
     'email',
-    'siup',
-    'is_preffered',
     db_prefix().'clients.phonenumber as phonenumber',
     db_prefix().'clients.active',
 ];
@@ -27,15 +26,8 @@ $where        = [];
 $filter = [];
 
 $join = [
-    'LEFT JOIN '.db_prefix().'contacts ON '.db_prefix().'contacts.userid='.db_prefix().'clients.userid AND '.db_prefix().'contacts.is_primary=1',
+    'LEFT JOIN '.db_prefix().'staff ON '.db_prefix().'staff.client_id='.db_prefix().'clients.userid AND '.db_prefix().'staff.is_primary=1',
 ];
-
-foreach ($custom_fields as $key => $field) {
-    $selectAs = (is_cf_date($field) ? 'date_picker_cvalue_' . $key : 'cvalue_' . $key);
-    array_push($customFieldsColumns, $selectAs);
-    array_push($aColumns, 'ctable_' . $key . '.value as ' . $selectAs);
-    array_push($join, 'LEFT JOIN '.db_prefix().'customfieldsvalues as ctable_' . $key . ' ON '.db_prefix().'clients.userid = ctable_' . $key . '.relid AND ctable_' . $key . '.fieldto="' . $field['fieldto'] . '" AND ctable_' . $key . '.fieldid=' . $field['id']);
-}
 
 $join = hooks()->apply_filters('customers_table_sql_join', $join);
 
@@ -59,6 +51,7 @@ foreach ($countries as $country) {
         array_push($countryIds, $country['country_id']);
     }
 }
+
 if (count($countryIds) > 0) {
     array_push($filter, 'AND country IN (' . implode(',', $countryIds) . ')');
 }
@@ -66,7 +59,10 @@ if (count($countryIds) > 0) {
 
 // Filter by programs
 $programStatusIds = [];
-$program_states = get_program_states();
+$program_states = [];
+if(function_exists('get_program_states')){
+    $program_states = get_program_states();
+}
 
 foreach ($program_states as $state) {
     if ($this->ci->input->post('programs_' . $state['id'])) {
@@ -111,6 +107,11 @@ if ($this->ci->input->post('my_customers')) {
 }
 
 array_push($where, 'AND ('.db_prefix().'clients.is_surveyor = '.$is_surveyor.') ');
+$institution_id = get_institution_id_by_staff_id($staff_id);
+if(is_surveyor_staff($staff_id) && get_option('allow_inspector_staff_only_view_surveyors_in_same_institution')){
+    array_push($where, 'AND '.db_prefix().'clients.institution_id = '. $institution_id);    
+}
+
 
 // print_r($is_surveyor); exit;
 
@@ -124,8 +125,8 @@ if (count($custom_fields) > 4) {
 // print_r($result);exit;
 
 $result = data_tables_init($aColumns, $sIndexColumn, $sTable, $join, $where, [
-    db_prefix().'contacts.id as contact_id',
-    'lastname',
+    db_prefix().'clients.userid as userid',
+    'firstname',
     db_prefix().'clients.zip as zip',
     'registration_confirmed',
 ]);
@@ -139,84 +140,59 @@ foreach ($rResult as $aRow) {
     // Bulk actions
     $row[] = '<div class="checkbox"><input type="checkbox" value="' . $aRow['userid'] . '"><label></label></div>';
     // User id
-    $row[] = $aRow['userid'];
+    $row[] = $aRow['company'];
 
     // Company
-    $company  = $aRow['company'];
+    $primary_contact  = $aRow['company'];
     $isPerson = false;
 
-    if ($company == '') {
-        $company  = _l('no_company_view_profile');
+    if ($primary_contact == '') {
+        $primary_contact  = _l('no_company_view_profile');
         $isPerson = true;
     }
 
 //    $row[] = '<a href="' . admin_url('perusahaan/list_perusahaan/' . $aRow[db_prefix() . 'perusahaan.id'] .'#/'. $aRow[db_prefix() . 'perusahaan.id']) . '" onclick="init_perusahaan(' . $aRow[db_prefix() . 'perusahaan.id'] . '); return false;">' . $aRow['subject'] . '</a>';
 
-    $url = admin_url('surveyors/list_surveyors/' . $aRow['userid']);
+    $url = admin_url('surveyors/list_surveyors/#' . $aRow['userid']);
 
-    if ($isPerson && $aRow['contact_id']) {
-        $url .= '?contactid=' . $aRow['contact_id'];
+    if ($isPerson && $aRow['userid']) {
+        $url .= '?contactid=' . $aRow['userid'];
     }
 
-    $company = '<a href="' . admin_url('surveyors/list_surveyors/' . $aRow['userid'] .'#/'. $aRow['userid']) . '" onclick="init_surveyor(' . $aRow['userid'] . '); return false;">' . $aRow['company'] . '</a>';
-    $company .= '<div class="row-options">';
-    $company .= '<a href="' . $url . '">' . _l('view') . '</a>';
+    $primary_contact = '<a href="' . admin_url('surveyors/list_surveyors/#' . $aRow['userid']) . '" onclick="init_inspector(' . $aRow['userid'] . '); return false;">' . $aRow['firstname'] .' '. $aRow['lastname'] .'</a>';
+    $primary_contact .= '<div class="row-options">';
+    $primary_contact .= '<a href="' . $url . '">' . _l('view') . '</a>';
 
     if ($aRow['registration_confirmed'] == 0 && is_admin()) {
-        $company .= ' | <a href="' . admin_url('pjk3/confirm_registration/' . $aRow['userid']) . '" class="text-success bold">' . _l('confirm_registration') . '</a>';
-    }
-    if (!$isPerson) {
-        $company .= ' | <a href="' . admin_url('pjk3/client/' . $aRow['userid'] . '?group=contacts') . '">' . _l('customer_contacts') . '</a>';
+        $primary_contact .= ' | <a href="' . admin_url('surveyors/confirm_registration/' . $aRow['userid']) . '" class="text-success bold">' . _l('confirm_registration') . '</a>';
     }
     if ($hasPermissionDelete) {
-        $company .= ' | <a href="' . admin_url('pjk3/delete/' . $aRow['userid']) . '" class="text-danger _delete">' . _l('delete') . '</a>';
+        $primary_contact .= ' | <a href="' . admin_url('surveyors/delete/' . $aRow['userid']) . '" class="text-danger _delete">' . _l('delete') . '</a>';
     }
 
-    $company .= '</div>';
+    $primary_contact .= '</div>';
 
-    $row[] = $company;
+    $row[] = $primary_contact;
 
     // Primary contact
-    $row[] = ($aRow['contact_id'] ? '<a href="' . admin_url('pjk3/client/' . $aRow['userid'] . '?contactid=' . $aRow['contact_id']) . '" target="_blank">' . $aRow['firstname'] . ' ' . $aRow['lastname'] . '</a>' : '');
+    $row[] = ($aRow['userid'] ? '<a href="' . admin_url('surveyors/client/' . $aRow['userid'] . '?contactid=' . $aRow['userid']) . '" target="_blank">' . $aRow['firstname'] . ' ' . $aRow['lastname'] . '</a>' : '');
 
     // Primary contact email
     $row[] = ($aRow['email'] ? '<a href="mailto:' . $aRow['email'] . '">' . $aRow['email'] . '</a>' : '');
-
-    // Primary contact phone
-    $row[] = ($aRow['siup'] ? $aRow['siup'] : '');
 
     // Primary contact phone
     $row[] = ($aRow['phonenumber'] ? '<a href="tel:' . $aRow['phonenumber'] . '">' . $aRow['phonenumber'] . '</a>' : '');
 
     // Toggle active/inactive customer
     $toggleActive = '<div class="onoffswitch" data-toggle="tooltip" data-title="' . _l('customer_active_inactive_help') . '">
-    <input type="checkbox"' . ($aRow['registration_confirmed'] == 0 ? ' disabled' : '') . ' data-switch-url="' . admin_url() . 'pjk3/change_client_state" name="onoffswitch" class="onoffswitch-checkbox" id="' . $aRow['userid'] . '" data-id="' . $aRow['userid'] . '" ' . ($aRow[db_prefix().'clients.active'] == 1 ? 'checked' : '') . '>
+    <input type="checkbox"' . ($aRow['registration_confirmed'] == 0 ? ' disabled' : '') . ' data-switch-url="' . admin_url() . 'surveyors/change_client_state" name="onoffswitch" class="onoffswitch-checkbox" id="' . $aRow['userid'] . '" data-id="' . $aRow['userid'] . '" ' . ($aRow[db_prefix().'clients.active'] == 1 ? 'checked' : '') . '>
     <label class="onoffswitch-label" for="' . $aRow['userid'] . '"></label>
     </div>';
 
     // For exporting
     $toggleActive .= '<span class="hide">' . ($aRow[db_prefix().'clients.active'] == 1 ? _l('is_active_export') : _l('is_not_active_export')) . '</span>';
 
-
     $row[] = $toggleActive;
-     $toggle_pre_pjk3 = '<div class="onoffswitch custom_toggle"><label class="toggleSwitch" onclick="">
-        <input type="checkbox" data-switch-url="' . admin_url() . 'pjk3/change_pjk3_preference" name="onoffswitch" class="onoffswitch-checkbox" id="' . $aRow['userid'] . '" data-id="' . $aRow['userid'] . '" ' . ($aRow['is_preffered'] == 1 ? 'checked' : '') . '>
-        <span>
-            <span></span>
-            <span></span>
-            
-        </span>
-        <a></a>
-    </label></div>';
-
-    // For exporting
-    $toggle_pre_pjk3 .= '<span class="hide">' . ($aRow['is_preffered'] == 1 ? _l('is_active_export') : _l('is_not_active_export')) . '</span>';
-    $row[] = $toggle_pre_pjk3;
-
-    // Custom fields add values
-    foreach ($customFieldsColumns as $customFieldColumn) {
-        $row[] = (strpos($customFieldColumn, 'date_picker_') !== false ? _d($aRow[$customFieldColumn]) : $aRow[$customFieldColumn]);
-    }
 
     $row['DT_RowClass'] = 'has-row-options';
 

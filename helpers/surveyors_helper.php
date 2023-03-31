@@ -16,7 +16,10 @@ function is_surveyor_staff($staff_id){
     $CI->db->where('client_type', 'surveyor');
     $CI->db->where('is_not_staff', 0);
     $CI->db->where('staffid', $staff_id);
-    return (bool)$CI->db->get(db_prefix() . 'staff')->result();
+    $result = $CI->db->get(db_prefix() . 'staff')->result();
+    if($result){return true;}
+    else{return false;}
+
 }
 
 function get_surveyor_id_by_staff_id($staff_id){
@@ -728,17 +731,17 @@ if (!function_exists('format_surveyor_info')) {
             $email = '<a href="mailto:' . $surveyor->email . '">' . $surveyor->email . '</a>';
         }
 
-        $format = _info_format_replace('company_name', $surveyorTo, $format);
-        $format = _info_format_replace('address', $surveyor->address . ' ' . $surveyor->city, $format);
+        $format = _apps_format_replace('company_name', $surveyorTo, $format);
+        $format = _apps_format_replace('address', $surveyor->address . ' ' . $surveyor->city, $format);
 
-        $format = _info_format_replace('city', NULL, $format);
-        $format = _info_format_replace('state', $surveyor->state . ' ' . $surveyor->zip, $format);
+        $format = _apps_format_replace('city', NULL, $format);
+        $format = _apps_format_replace('state', $surveyor->state . ' ' . $surveyor->zip, $format);
 
-        $format = _info_format_replace('country_code', $countryCode, $format);
-        $format = _info_format_replace('country_name', $countryName, $format);
+        $format = _apps_format_replace('country_code', $countryCode, $format);
+        $format = _apps_format_replace('country_name', $countryName, $format);
 
-        $format = _info_format_replace('zip_code', '', $format);
-        $format = _info_format_replace('vat_number_with_label', '', $format);
+        $format = _apps_format_replace('zip_code', '', $format);
+        $format = _apps_format_replace('vat_number_with_label', '', $format);
 
         $whereCF = [];
         if (is_custom_fields_for_customers_portal()) {
@@ -831,4 +834,13 @@ function is_staff_related_to_surveyor($client_id){
     }
 
     return false;    
+}
+
+function get_surveyor_permits_by_category($clientid, $category){
+    $CI = &get_instance();
+    $CI->db->where('rel_id', $clientid);
+    $CI->db->where('category', $category);
+    $CI->db->where('is_active', true);
+    $results = $CI->db->get(db_prefix() . 'permits')->result();
+    return $results;
 }

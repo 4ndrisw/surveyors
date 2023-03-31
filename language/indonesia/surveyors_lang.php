@@ -149,6 +149,7 @@ $lang['surveyor_activity_marked']                                 	= 'PJK3 ditan
 
 $lang['surveyor_staffs']                        	= 'Saff';
 $lang['surveyor_staff']                        	= 'Saff';
+$lang['surveyor_expert']                        	= 'Expert';
 $lang['permission_edit_own']                        	= 'Edit milik sendiri';
 $lang['surveyor_activity_changed']                        	= 'PJK3 diubah';
 $lang['surveyors_toggle_table_tooltip']     						= 'Alihkan Tabel';
@@ -160,7 +161,10 @@ $lang['staff_add_edit_skp_number']     						= 'Nomor SKP';
 $lang['staff_add_edit_skp_datestart']     						= 'Tanggal Penerbitan SKP';
 $lang['staff_add_edit_skp_dateend']     						= 'Tanggal Kadaluarsa SKP';
 $lang['surveyor_permits']     						= 'SKP PJK3';
+$lang['surveyor_staff_permits']     						= 'SKP Staff';
+
 $lang['surveyor_set_permit_title']     						= 'Set SKP PJK3';
+$lang['surveyor_staff_set_permit_title']     				= 'Set SKP staff';
 $lang['permit_is_notified_boolean_no']     						= 'Tidak diinformasikan';
 $lang['permit_is_notified_boolean_yes']     						= 'Diinformasikan';
 $lang['surveyors_permit_form']     						= 'SKP PJK3 Form';
@@ -174,7 +178,8 @@ $lang['permit_date_expired']     						= 'Kadaluarsa';
 $lang['is_active']     						= 'Active ?';
 $lang['permit_active_inactive_help']     						= 'Klick disini untuk mengubah status aktif / non aktif SKP';
 $lang['surveyor_permit_status_changed']     						= 'Status SKP Perusahaan dirubah';
-
+$lang['permit_category']     									= 'Kelompok';
+ 
 /*
 
 

@@ -61,74 +61,6 @@ function get_surveyor_item_preview_values() {
     return response;
 }
 
-// Append the added items to the preview to the table as items
-function add_surveyor_item_to_table(data, itemid){
-
-  // If not custom data passed get from the preview
-  data = typeof (data) == 'undefined' || data == 'undefined' ? get_surveyor_item_preview_values() : data;
-  if (data.description === "" && data.long_description === "") {
-     return;
-  }
-
-  var table_row = '';
-  var item_key = lastAddedItemKey ? lastAddedItemKey += 1 : $("body").find('tbody .item').length + 1;
-  lastAddedItemKey = item_key;
-
-  table_row += '<tr class="sortable item">';
-
-  table_row += '<td class="dragger">';
-
-  // Check if quantity is number
-  if (isNaN(data.qty)) {
-     data.qty = 1;
-  }
-
-  $("body").append('<div class="dt-loader"></div>');
-  var regex = /<br[^>]*>/gi;
-
-     table_row += '<input type="hidden" class="order" name="newitems[' + item_key + '][order]">';
-
-     table_row += '</td>';
-
-     table_row += '<td class="bold description"><textarea name="newitems[' + item_key + '][description]" class="form-control" rows="5">' + data.description + '</textarea></td>';
-
-     table_row += '<td><textarea name="newitems[' + item_key + '][long_description]" class="form-control item_long_description" rows="5">' + data.long_description.replace(regex, "\n") + '</textarea></td>';
-   //table_row += '<td><textarea name="newitems[' + item_key + '][long_description]" class="form-control item_long_description" rows="5">' + data.long_description + '</textarea></td>';
-
-
-     table_row += '<td><input type="number" min="0" onblur="calculate_total();" onchange="calculate_total();" data-quantity name="newitems[' + item_key + '][qty]" value="' + data.qty + '" class="form-control">';
-
-     if (!data.unit || typeof (data.unit) == 'undefined') {
-        data.unit = '';
-     }
-
-     table_row += '<input type="text" placeholder="' + app.lang.unit + '" name="newitems[' + item_key + '][unit]" class="form-control input-transparent text-right" value="' + data.unit + '">';
-
-     table_row += '</td>';
-
-
-     table_row += '<td><a href="#" class="btn btn-danger pull-left" onclick="delete_item(this,' + itemid + '); return false;"><i class="fa fa-trash"></i></a></td>';
-
-     table_row += '</tr>';
-
-     $('table.items tbody').append(table_row);
-
-     $(document).trigger({
-        type: "item-added-to-table",
-        data: data,
-        row: table_row
-     });
-
-
-     clear_item_preview_values();
-     reorder_items();
-
-     $('body').find('#items-warning').remove();
-     $("body").find('.dt-loader').remove();
-
-  return false;
-}
-
 
 // From surveyor table mark as
 function surveyor_mark_as(state_id, surveyor_id) {
@@ -286,6 +218,7 @@ function edit_permit(id, e) {
     $container.find("#date_expired").val(response.date_expired);
     $container.find("#permit_number").val(response.permit_number);
     $container.find("#staff").selectpicker("val", response.staff);
+    $container.find("#category_id").selectpicker("val", response.category_id);
     $container
       .find("#notify_by_email")
       .prop("checked", response.notify_by_email == 1 ? true : false);
@@ -329,7 +262,7 @@ function permitFormHandler(form) {
 function reload_permits_tables() {
   var available_permits_table = [
     ".table-permits",
-    ".table-permits-leads",
+    ".table-staff_permits",
     ".table-my-permits",
   ];
 

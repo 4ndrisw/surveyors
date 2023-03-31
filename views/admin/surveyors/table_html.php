@@ -12,12 +12,12 @@ $table_data = array(
       'name'=>_l('company_primary_email'),
       'th_attrs'=>array('class'=> (isset($client) ? 'not_visible' : ''))
    ),
-   _l('company_siup'),
    _l('clients_list_phone'),
-   _l('customer_active'),
-//   _l('surveyor_dt_table_heading_expirydate'),
+   _l('customer_active')
+   //_l('surveyor_dt_table_heading_expirydate'),
    //_l('reference_no'),
-   _l('preffered_pjk3'));
+   //_l('preffered_pjk3')
+   );
 
 $custom_fields = get_custom_fields('surveyor',array('show_on_table'=>1));
 
