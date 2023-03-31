@@ -30,18 +30,13 @@ INSERT INTO `tblemailtemplates` (`type`, `slug`, `language`, `name`, `subject`, 
 
 // Add options for surveyors
 add_option('delete_only_on_last_surveyor', 1);
-add_option('surveyor_prefix', 'SCH-');
+add_option('surveyor_prefix', 'PJK3-');
 add_option('next_surveyor_number', 1);
 add_option('default_surveyor_assigned', 9);
 add_option('surveyor_number_decrement_on_delete', 0);
 add_option('surveyor_number_format', 4);
 add_option('surveyor_year', date('Y'));
 add_option('exclude_surveyor_from_client_area_with_draft_state', 1);
-add_option('predefined_clientnote_surveyor', '- Staf diatas untuk melakukan riksa uji pada peralatan tersebut.
-- Staf diatas untuk membuat dokumentasi riksa uji sesuai kebutuhan.');
-add_option('predefined_terms_surveyor', '- Pelaksanaan riksa uji harus mengikuti prosedur yang ditetapkan perusahaan pemilik alat.
-- Dilarang membuat dokumentasi tanpa seizin perusahaan pemilik alat.
-- Dokumen ini diterbitkan dari sistem CRM, tidak memerlukan tanda tangan dari PT. Cipta Mas Jaya');
 add_option('surveyor_due_after', 1);
 add_option('allow_staff_view_surveyors_assigned', 1);
 add_option('show_assigned_on_surveyors', 1);
